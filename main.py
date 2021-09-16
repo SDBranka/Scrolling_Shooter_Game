@@ -10,24 +10,33 @@ SCREEN_HEIGHT = int(SCREEN_WIDTH * 0.8)
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Scrolling Shooter")
 
-# player
-player_x, player_y = 200, 200
-player_surface = pygame.image.load("img/player/idle/0.png")
-# scale player image
-img_to_scale = player_surface
-scale = 3
-player_surface = pygame.transform.scale(img_to_scale, (player_surface.get_width() * scale, player_surface.get_height() * scale))
-player_rect = player_surface.get_rect()
-player_rect.center = (player_x, player_y)
 
+class Soldier(pygame.sprite.Sprite):
+    def __init__(self, x, y, scale):
+        pygame.sprite.Sprite.__init__(self)
+        img = pygame.image.load("img/player/idle/0.png")
+        self.image = pygame.transform.scale(img, (int(img.get_width() * scale), int(img.get_height() * scale)))
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+
+    def draw(self):
+        screen.blit(self.image, self.rect)
+
+
+
+
+
+
+player = Soldier(200, 200, 3)
+player2 = Soldier(400, 200, 3)
 
 
 
 run = True
 while run:
     # display controls
-    screen.blit(player_surface, player_rect)
-
+    player.draw()
+    player2.draw()
 
 
 
