@@ -20,12 +20,32 @@ moving_right = False
 
 
 class Soldier(pygame.sprite.Sprite):
-    def __init__(self, x, y, scale):
+    def __init__(self, x, y, scale, speed):
         pygame.sprite.Sprite.__init__(self)
+        self.speed = speed
+        
         img = pygame.image.load("img/player/idle/0.png")
         self.image = pygame.transform.scale(img, (int(img.get_width() * scale), int(img.get_height() * scale)))
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
+
+    def move(self, moving_left, moving_right):
+        # reset movement variables
+        # change in x and y 
+        dx = 0
+        dy = 0
+
+        # assign movement variable if moving left of right
+        if moving_left:
+            dx = -self.speed
+        if moving_right:
+            dx = self.speed
+        
+        # update rectangle position
+        self.rect.x += dx
+        self.rect.y += dy
+
+
 
     def draw(self):
         screen.blit(self.image, self.rect)
@@ -35,14 +55,17 @@ class Soldier(pygame.sprite.Sprite):
 
 
 
-player = Soldier(200, 200, 3)
+player = Soldier(200, 200, 3, 5)
 
 
 
 run = True
 while run:
     # display controls
+    # draw player
     player.draw()
+    # move player
+    player.move(moving_left, moving_right)
 
 
 
@@ -57,6 +80,7 @@ while run:
             # close game if escape key is pressed
             if event.key == pygame.K_ESCAPE:
                 run = False
+            # player movement
             if event.key == pygame.K_a:
                 moving_left = True
             if event.key == pygame.K_d:
