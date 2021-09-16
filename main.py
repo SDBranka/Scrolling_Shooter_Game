@@ -13,6 +13,10 @@ pygame.display.set_caption("Scrolling Shooter")
 # player
 player_x, player_y = 200, 200
 player_surface = pygame.image.load("img/player/idle/0.png")
+# scale player image
+img_to_scale = player_surface
+scale = 3
+player_surface = pygame.transform.scale(img_to_scale, (player_surface.get_width() * scale, player_surface.get_height() * scale))
 player_rect = player_surface.get_rect()
 player_rect.center = (player_x, player_y)
 
