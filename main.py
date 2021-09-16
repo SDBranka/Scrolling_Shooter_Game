@@ -28,13 +28,15 @@ def draw_bg():
 
 
 class Soldier(pygame.sprite.Sprite):
-    def __init__(self, x, y, scale, speed):
+    def __init__(self, char_type, x, y, scale, speed):
         pygame.sprite.Sprite.__init__(self)
         self.speed = speed
         # 1 (right) or -1 (left) determine if character is looking left or right
         self.direction = 1
         self.flip = False
-        img = pygame.image.load("img/player/idle/0.png")
+        # control if player or enemy is displayed
+        self.char_type = char_type
+        img = pygame.image.load(f"img/{self.char_type}/idle/0.png")
         self.image = pygame.transform.scale(img, (int(img.get_width() * scale), int(img.get_height() * scale)))
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
@@ -55,22 +57,18 @@ class Soldier(pygame.sprite.Sprite):
             self.flip = False
             self.direction = 1
 
-
-
         # update rectangle position
         self.rect.x += dx
         self.rect.y += dy
 
-
-
     def draw(self):
-
         # determine direction to draw character facing and draw
         img_to_flip = self.image
         # when True player faces left
         flip_in_x_axis = self.flip
         flip_in_y_axis = False
         pos_to_draw_at = self.rect
+        # draws to screen
         screen.blit(pygame.transform.flip(img_to_flip, flip_in_x_axis, flip_in_y_axis), pos_to_draw_at)
 
 
@@ -78,7 +76,8 @@ class Soldier(pygame.sprite.Sprite):
 
 
 
-player = Soldier(200, 200, 3, 5)
+player = Soldier("player", 200, 200, 3, 5)
+enemy = Soldier("enemy", 400, 200, 3, 5)
 
 
 
@@ -96,6 +95,8 @@ while run:
     # move player
     player.move(moving_left, moving_right)
 
+    # draw enemy
+    enemy.draw()
 
 
 
