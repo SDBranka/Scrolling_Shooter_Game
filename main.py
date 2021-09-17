@@ -1,5 +1,7 @@
 import pygame
+import os
 
+# initialize pygame
 pygame.init()
 
 
@@ -14,30 +16,57 @@ pygame.display.set_caption("Scrolling Shooter")
 CLOCK = pygame.time.Clock()
 FPS = 60
 
-
 # define player action variables
 moving_left = False
 moving_right = False
 
 # define colors
 BG = (144, 201, 120)
+RED = (255, 0, 0)
 
 def draw_bg():
     screen.fill(BG)
+    pygame.draw.line(screen, RED, (0, 300), (SCREEN_WIDTH, 300))
 
 
 
 class Soldier(pygame.sprite.Sprite):
     def __init__(self, char_type, x, y, scale, speed):
         pygame.sprite.Sprite.__init__(self)
+        # control if player or enemy is displayed
+        self.char_type = char_type
         self.speed = speed
         # 1 (right) or -1 (left) determine if character is looking left or right
         self.direction = 1
         self.flip = False
-        # control if player or enemy is displayed
-        self.char_type = char_type
-        img = pygame.image.load(f"img/{self.char_type}/idle/0.png")
-        self.image = pygame.transform.scale(img, (int(img.get_width() * scale), int(img.get_height() * scale)))
+        # control which frame of animation cycle is displayed
+        self.animation_list = []
+        self.frame_index = 0
+        # character's action: 0 = idle, 1 = run 
+        self.action = 0
+        self.update_time = pygame.time.get_ticks()
+        
+        # build animation cycle list for idle
+        temp_list = []
+        for i in range(5):
+            img = pygame.image.load(f"img/{self.char_type}/Idle/{i}.png")
+            img = pygame.transform.scale(img, (int(img.get_width() * scale), int(img.get_height() * scale)))
+            temp_list.append(img)
+        # add the temp_list to the animation list
+        self.animation_list.append(temp_list)
+        
+        # clear the temp_list 
+        temp_list = []
+        # build animation cycle list for run
+        for i in range(6):
+            img = pygame.image.load(f"img/{self.char_type}/Run/{i}.png")
+            img = pygame.transform.scale(img, (int(img.get_width() * scale), int(img.get_height() * scale)))
+            temp_list.append(img)
+        # add the temp_list to the animation list
+        self.animation_list.append(temp_list)
+
+        # set the player surface to the correct display
+        self.image = self.animation_list[self.action][self.frame_index]
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
 
@@ -60,6 +89,35 @@ class Soldier(pygame.sprite.Sprite):
         # update rectangle position
         self.rect.x += dx
         self.rect.y += dy
+
+    def update_animation(self):
+        # define timer (controls speed of animation)
+        ANIMATION_COOLDOWN = 100
+
+        # update image based on current frame
+        self.image = self.animation_list[self.action][self.frame_index]
+        
+        # check if enough time has passed since the last update
+        if pygame.time.get_ticks() - self.update_time > ANIMATION_COOLDOWN:
+            # reset the timer
+            self.update_time = pygame.time.get_ticks()
+            # control which frame will be displayed
+            self.frame_index += 1
+            if self.frame_index >= len(self.animation_list[self.action]):
+                self.frame_index = 0
+
+
+    def update_action(self, new_action):
+        # check if the new action is different than the previous one
+        if new_action != self.action:
+            self.action = new_action
+            # update aniation settings
+            self.frame_index = 0
+            self.update_time = pygame.time.get_ticks()
+
+
+
+
 
     def draw(self):
         # determine direction to draw character facing and draw
@@ -90,8 +148,19 @@ while run:
     # draw background color
     draw_bg()
 
-    # draw player
+    # update and draw player image
+    player.update_animation()
     player.draw()
+
+    # update player actions
+    # if player is moving change image to run
+    if moving_left or moving_right:
+        player.update_action(1)
+    # if player is not moving change image to idle
+    else:
+        player.update_action(0)
+
+
     # move player
     player.move(moving_left, moving_right)
 
