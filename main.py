@@ -33,11 +33,13 @@ def draw_bg():
 class Soldier(pygame.sprite.Sprite):
     def __init__(self, char_type, x, y, scale, speed):
         pygame.sprite.Sprite.__init__(self)
+        self.alive = True
         # control if player or enemy is displayed
         self.char_type = char_type
         self.speed = speed
         # 1 (right) or -1 (left) determine if character is looking left or right
         self.direction = 1
+        self.jump = False
         self.flip = False
         # control which frame of animation cycle is displayed
         self.animation_list = []
@@ -116,9 +118,6 @@ class Soldier(pygame.sprite.Sprite):
             self.update_time = pygame.time.get_ticks()
 
 
-
-
-
     def draw(self):
         # determine direction to draw character facing and draw
         img_to_flip = self.image
@@ -152,20 +151,22 @@ while run:
     player.update_animation()
     player.draw()
 
-    # update player actions
-    # if player is moving change image to run
-    if moving_left or moving_right:
-        player.update_action(1)
-    # if player is not moving change image to idle
-    else:
-        player.update_action(0)
-
-
-    # move player
-    player.move(moving_left, moving_right)
-
     # draw enemy
     enemy.draw()
+
+
+
+    # update player actions if player is alive
+    if player.alive:
+        # if player is moving change image to run
+        if moving_left or moving_right:
+            player.update_action(1)
+        # if player is not moving change image to
+        else:
+            player.update_action(0)
+        # move player
+        player.move(moving_left, moving_right)
+
 
 
 
@@ -184,6 +185,9 @@ while run:
                 moving_left = True
             if event.key == pygame.K_d:
                 moving_right = True
+            if event.key == pygame.K_e:
+                player.jump = False
+        
         # keybord releases
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_a:
