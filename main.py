@@ -16,20 +16,25 @@ pygame.display.set_caption("Scrolling Shooter")
 CLOCK = pygame.time.Clock()
 FPS = 60
 
-# define player action variables
+# Define game variables
+GRAVITY = 0.75
+
+# Define player action variables
 moving_left = False
 moving_right = False
 
-# define colors
+# Define colors
 BG = (144, 201, 120)
 RED = (255, 0, 0)
 
+# methods
 def draw_bg():
     screen.fill(BG)
     pygame.draw.line(screen, RED, (0, 300), (SCREEN_WIDTH, 300))
 
 
 
+# classes
 class Soldier(pygame.sprite.Sprite):
     def __init__(self, char_type, x, y, scale, speed):
         pygame.sprite.Sprite.__init__(self)
@@ -39,6 +44,7 @@ class Soldier(pygame.sprite.Sprite):
         self.speed = speed
         # 1 (right) or -1 (left) determine if character is looking left or right
         self.direction = 1
+        self.vel_y = 0
         self.jump = False
         self.flip = False
         # control which frame of animation cycle is displayed
@@ -88,9 +94,23 @@ class Soldier(pygame.sprite.Sprite):
             self.flip = False
             self.direction = 1
 
+        # jump
+        if self.jump == True:
+            self.vel_y = -11
+            self.jump = False
+
+        # apply gravity
+        self.vel_y += GRAVITY
+        dy += self.vel_y
+
+
+
         # update rectangle position
         self.rect.x += dx
         self.rect.y += dy
+
+
+
 
     def update_animation(self):
         # define timer (controls speed of animation)
@@ -185,8 +205,10 @@ while run:
                 moving_left = True
             if event.key == pygame.K_d:
                 moving_right = True
-            if event.key == pygame.K_e:
-                player.jump = False
+            if event.key == pygame.K_e and player.alive:
+                player.jump = True
+
+
         
         # keybord releases
         if event.type == pygame.KEYUP:
