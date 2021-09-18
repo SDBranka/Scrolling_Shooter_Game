@@ -165,6 +165,10 @@ class Bullet(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.direction = direction
+    
+    def update(self):
+        # move bullet
+        self.rect.x += (self.direction * self.speed)
 
 
 
@@ -211,7 +215,7 @@ while run:
         # shoot bullets
         if shoot:
 
-            bullet = Bullet(player.rect.centerx, player.rect.centery, player.direction)
+            bullet = Bullet(player.rect.centerx + (0.6 * player.rect.size[0] * player.direction), player.rect.centery, player.direction)
             bullet_group.add(bullet)
         # if player in air cange image to jump
         if player.in_air:
