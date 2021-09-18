@@ -84,6 +84,7 @@ class Soldier(pygame.sprite.Sprite):
         dx = 0
         dy = 0
 
+
         # assign movement variable if moving left of right
         if moving_left:
             dx = -self.speed
@@ -94,14 +95,27 @@ class Soldier(pygame.sprite.Sprite):
             self.flip = False
             self.direction = 1
 
+
         # jump
         if self.jump == True:
             self.vel_y = -11
             self.jump = False
 
+
         # apply gravity
         self.vel_y += GRAVITY
+        # set terminal velocity
+        # if player velocity tries to exceed the limit it 
+        # is set to its self
+        vel_y_limit = 10
+        if self.vel_y > vel_y_limit:
+            self.vel_y 
         dy += self.vel_y
+        # add floor
+        # if the bottom of the player is going below the line drawn
+        # correct the position to the level of the floor
+        if self.rect.bottom + dy > 300:
+            dy = 300 - self.rect.bottom
 
 
 
