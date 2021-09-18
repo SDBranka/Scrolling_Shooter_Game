@@ -46,6 +46,11 @@ class Soldier(pygame.sprite.Sprite):
         # control if player or enemy is displayed
         self.char_type = char_type
         self.speed = speed
+        # limit the frequency that the player can fire
+        # every time the player fires the value is increased
+        # and then brought back down to zero such that a player 
+        # may only fire when the shoot_cooldown is zero 
+        self.shoot_cooldown = 0
         # 1 (right) or -1 (left) determine if character is looking left or right
         self.direction = 1
         self.vel_y = 0
@@ -79,6 +84,13 @@ class Soldier(pygame.sprite.Sprite):
         self.image = self.animation_list[self.action][self.frame_index]
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
+
+    def update(self):
+        self.update_animation()
+        # update shoot cooldown
+        if self.shoot_cooldown > 0:
+            self.shoot_cooldown -= 1
+
 
     def move(self, moving_left, moving_right):
         # reset movement variables
@@ -121,6 +133,12 @@ class Soldier(pygame.sprite.Sprite):
         # update rectangle position
         self.rect.x += dx
         self.rect.y += dy
+
+    def shoot(self):
+        if self.shoot_cooldown == 0:
+            self.shoot_cooldown = 20
+            bullet = Bullet(self.rect.centerx + (0.6 * self.rect.size[0] * self.direction), self.rect.centery, player.direction)
+            bullet_group.add(bullet)
 
     def update_animation(self):
         # define timer (controls speed of animation)
@@ -169,6 +187,9 @@ class Bullet(pygame.sprite.Sprite):
     def update(self):
         # move bullet
         self.rect.x += (self.direction * self.speed)
+        # check if bullet has left screen
+        if self.rect.right < 0 or self.rect.left > SCREEN_WIDTH:
+            self.kill()
 
 
 
@@ -196,7 +217,7 @@ while run:
     draw_bg()
 
     # update and draw player image
-    player.update_animation()
+    player.update()
     player.draw()
 
     # draw enemy
@@ -214,9 +235,7 @@ while run:
     if player.alive:
         # shoot bullets
         if shoot:
-
-            bullet = Bullet(player.rect.centerx + (0.6 * player.rect.size[0] * player.direction), player.rect.centery, player.direction)
-            bullet_group.add(bullet)
+            player.shoot()
         # if player in air cange image to jump
         if player.in_air:
             player.update_action(2)
