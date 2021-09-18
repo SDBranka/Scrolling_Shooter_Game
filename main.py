@@ -40,12 +40,14 @@ def draw_bg():
 
 # classes
 class Soldier(pygame.sprite.Sprite):
-    def __init__(self, char_type, x, y, scale, speed):
+    def __init__(self, char_type, x, y, scale, speed, ammo):
         pygame.sprite.Sprite.__init__(self)
         self.alive = True
         # control if player or enemy is displayed
         self.char_type = char_type
         self.speed = speed
+        self.ammo = ammo
+        self.start_ammo = ammo
         # limit the frequency that the player can fire
         # every time the player fires the value is increased
         # and then brought back down to zero such that a player 
@@ -135,10 +137,11 @@ class Soldier(pygame.sprite.Sprite):
         self.rect.y += dy
 
     def shoot(self):
-        if self.shoot_cooldown == 0:
+        if self.shoot_cooldown == 0 and self.ammo > 0:
             self.shoot_cooldown = 20
             bullet = Bullet(self.rect.centerx + (0.6 * self.rect.size[0] * self.direction), self.rect.centery, player.direction)
             bullet_group.add(bullet)
+            self.ammo -= 1
 
     def update_animation(self):
         # define timer (controls speed of animation)
@@ -191,6 +194,15 @@ class Bullet(pygame.sprite.Sprite):
         if self.rect.right < 0 or self.rect.left > SCREEN_WIDTH:
             self.kill()
 
+        # check collision with characters
+        if pygame.sprite.spritecollide(player, bullet_group, False):
+            if player.alive:
+                self.kill()
+        if pygame.sprite.spritecollide(enemy, bullet_group, False):
+            if enemy.alive:
+                self.kill()
+
+
 
 
 
@@ -202,8 +214,8 @@ bullet_group = pygame.sprite.Group()
 
 
 
-player = Soldier("player", 200, 200, 3, 5)
-enemy = Soldier("enemy", 400, 200, 3, 5)
+player = Soldier("player", 200, 200, 3, 5, 2000)
+enemy = Soldier("enemy", 400, 200, 3, 5, 20)
 
 
 
