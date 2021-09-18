@@ -22,6 +22,10 @@ GRAVITY = 0.75
 # Define player action variables
 moving_left = False
 moving_right = False
+shoot = False
+
+# Load images
+bullet_img = pygame.image.load("img/icons/bullet.png").convert_alpha()
 
 # Define colors
 BG = (144, 201, 120)
@@ -65,15 +69,11 @@ class Soldier(pygame.sprite.Sprite):
             # count number of files in the folder
             num_of_frames = len(os.listdir(f"img/{self.char_type}/{animation}"))
             for i in range(num_of_frames):
-                img = pygame.image.load(f"img/{self.char_type}/{animation}/{i}.png")
+                img = pygame.image.load(f"img/{self.char_type}/{animation}/{i}.png").convert_alpha()
                 img = pygame.transform.scale(img, (int(img.get_width() * scale), int(img.get_height() * scale)))
                 temp_list.append(img)
             # add the temp_list to the animation list
-            self.animation_list.append(temp_list)
-        
-        
-        
-        
+            self.animation_list.append(temp_list)        
         
         # set the player surface to the correct display
         self.image = self.animation_list[self.action][self.frame_index]
@@ -86,7 +86,6 @@ class Soldier(pygame.sprite.Sprite):
         dx = 0
         dy = 0
 
-
         # assign movement variable if moving left of right
         if moving_left:
             dx = -self.speed
@@ -97,13 +96,11 @@ class Soldier(pygame.sprite.Sprite):
             self.flip = False
             self.direction = 1
 
-
         # jump
         if self.jump == True and self.in_air == False:
             self.vel_y = -18
             self.jump = False
             self.in_air = True
-
 
         # apply gravity
         self.vel_y += GRAVITY
@@ -121,14 +118,9 @@ class Soldier(pygame.sprite.Sprite):
             dy = 300 - self.rect.bottom
             self.in_air = False
 
-
-
         # update rectangle position
         self.rect.x += dx
         self.rect.y += dy
-
-
-
 
     def update_animation(self):
         # define timer (controls speed of animation)
@@ -146,7 +138,6 @@ class Soldier(pygame.sprite.Sprite):
             if self.frame_index >= len(self.animation_list[self.action]):
                 self.frame_index = 0
 
-
     def update_action(self, new_action):
         # check if the new action is different than the previous one
         if new_action != self.action:
@@ -154,7 +145,6 @@ class Soldier(pygame.sprite.Sprite):
             # update aniation settings
             self.frame_index = 0
             self.update_time = pygame.time.get_ticks()
-
 
     def draw(self):
         # determine direction to draw character facing and draw
@@ -166,6 +156,22 @@ class Soldier(pygame.sprite.Sprite):
         # draws to screen
         screen.blit(pygame.transform.flip(img_to_flip, flip_in_x_axis, flip_in_y_axis), pos_to_draw_at)
 
+
+class Bullet(pygame.sprite.Sprite):
+    def __init__(self, x, y, direction):
+        pygame.sprite.Sprite.__init__(self)
+        self.speed = 10
+        self.image = bullet_img
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+        self.direction = direction
+
+
+
+
+# create sprite groups
+# bullets
+bullet_group = pygame.sprite.Group()
 
 
 
@@ -192,10 +198,21 @@ while run:
     # draw enemy
     enemy.draw()
 
+    # update and draw groups
+    # draw bullets
+    bullet_group.update()
+    bullet_group.draw(screen)
+
+
 
 
     # update player actions if player is alive
     if player.alive:
+        # shoot bullets
+        if shoot:
+
+            bullet = Bullet(player.rect.centerx, player.rect.centery, player.direction)
+            bullet_group.add(bullet)
         # if player in air cange image to jump
         if player.in_air:
             player.update_action(2)
@@ -221,22 +238,32 @@ while run:
             # close game if escape key is pressed
             if event.key == pygame.K_ESCAPE:
                 run = False
-            # player movement
+            # player actions
+            # move left
             if event.key == pygame.K_a:
                 moving_left = True
+            # move right
             if event.key == pygame.K_d:
                 moving_right = True
+            # jump
             if event.key == pygame.K_e and player.alive:
                 player.jump = True
+            # fire weapon 
+            if event.key == pygame.K_SPACE:
+                shoot = True
+            
 
-
-        
         # keybord releases
         if event.type == pygame.KEYUP:
+            # stop moving left
             if event.key == pygame.K_a:
                 moving_left = False
+            # stop moving right
             if event.key == pygame.K_d:
                 moving_right = False
+            # stop firing weapon 
+            if event.key == pygame.K_SPACE:
+                shoot = False
 
 
 
