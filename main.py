@@ -174,10 +174,6 @@ class Soldier(pygame.sprite.Sprite):
                 else:
                     self.frame_index = 0
 
-
-
-
-
     def update_action(self, new_action):
         # check if the new action is different than the previous one
         if new_action != self.action:
@@ -185,7 +181,6 @@ class Soldier(pygame.sprite.Sprite):
             # update aniation settings
             self.frame_index = 0
             self.update_time = pygame.time.get_ticks()
-
 
     def check_alive(self):
         if self.health <= 0:
@@ -197,7 +192,6 @@ class Soldier(pygame.sprite.Sprite):
             self.alive = False
 
             self.update_action(3)
-
 
     def draw(self):
         # determine direction to draw character facing and draw
@@ -254,9 +248,59 @@ class Grenade(pygame.sprite.Sprite):
         dx = self.direction * self.speed
         dy = self.vel_y
 
+        # collision
+        # add floor
+        # if the bottom of the grenade is going 
+        # below the line drawn correct the position 
+        # to the level of the floor
+        if self.rect.bottom + dy > 300:
+            dy = 300 - self.rect.bottom
+            # without setting this self.speed to zero the grenade bowls
+            self.speed = 0
+        # check if grenade collision with screen edge
+        if self.rect.left + dx < 0 or self.rect.right + dx > SCREEN_WIDTH:
+            self.direction *= -1
+            dx = self.direction * self.speed
+
         # update grenade position
         self.rect.x += dx
         self.rect.y += dy
+
+        # countdown timer for explosion
+        self.timer -= 1
+        if self.timer <= 0:
+            self.kill()
+            x_pos_of_grenade = self.rect.x
+            y_pos_of_grenade = self.rect.y
+            scale_for_explosion = 0.5
+            explosion = Explosion(x_pos_of_grenade, y_pos_of_grenade, scale_for_explosion)
+            explosion_group.add(explosion)
+
+
+
+
+class Explosion(pygame.sprite.Sprite):
+    def __init__(self, x, y, scale):
+        pygame.sprite.Sprite.__init__(self)
+        self.images = []
+        for num in range(1, 6):
+            # img = pygame.image.load(f'img/explosion/exp{num}.png').convert_alpha()
+            img = pygame.image.load(f'img/explosion/exp{num}.png').convert_alpha()
+            img = pygame.transform.scale(img, (int(img.get_width() * scale), int(img.get_height() * scale)))
+            self.images.append(img)
+        self.frame_index = 0
+        self.image = self.images[self.frame_index]
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+        self.counter = 0
+
+    def update(self):
+        pass
+
+    def draw(self):
+        pass
+
+
 
 
 
@@ -265,6 +309,8 @@ class Grenade(pygame.sprite.Sprite):
 bullet_group = pygame.sprite.Group()
 # grenades
 grenade_group = pygame.sprite.Group()
+# explosions
+explosion_group = pygame.sprite.Group()
 
 
 
@@ -299,9 +345,10 @@ while run:
     # draw grenades
     grenade_group.update()
     grenade_group.draw(screen)
-
-
-
+    # handle explosions
+    explosion_group.update()
+    explosion_group.draw(screen)
+    
 
     # update player actions if player is alive
     if player.alive:
