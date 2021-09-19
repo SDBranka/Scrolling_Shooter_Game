@@ -25,7 +25,11 @@ moving_right = False
 shoot = False
 
 # Load images
+# bullet
 bullet_img = pygame.image.load("img/icons/bullet.png").convert_alpha()
+# grenade
+grenade_img = pygame.image.load("img/icons/grenade.png").convert_alpha()
+
 
 # Define colors
 BG = (144, 201, 120)
@@ -229,6 +233,17 @@ class Bullet(pygame.sprite.Sprite):
                 enemy.health -= 25
                 # print(enemy.health)
                 self.kill()
+
+class Grenade(pygame.sprite.Sprite):
+    def __init__(self, x, y, direction):
+        pygame.sprite.Sprite.__init__(self)
+        self.timer = 100
+        self.vel_y = -11
+        self.speed = 7
+        self.image = grenade_img
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+        self.direction = direction
 
 
 
