@@ -24,6 +24,7 @@ moving_left = False
 moving_right = False
 shoot = False
 grenade = False
+grenade_thrown = False
 
 # Load images
 # bullet
@@ -47,13 +48,14 @@ def draw_bg():
 
 # classes
 class Soldier(pygame.sprite.Sprite):
-    def __init__(self, char_type, x, y, scale, speed, ammo):
+    def __init__(self, char_type, x, y, scale, speed, ammo, grenades):
         pygame.sprite.Sprite.__init__(self)
         self.alive = True
         # control if player or enemy is displayed
         self.char_type = char_type
         self.speed = speed
         self.ammo = ammo
+        self.grenades = grenades
         self.start_ammo = ammo
         # limit the frequency that the player can fire
         # every time the player fires the value is increased
@@ -260,8 +262,8 @@ grenade_group = pygame.sprite.Group()
 
 
 
-player = Soldier("player", 200, 200, 3, 5, 2000)
-enemy = Soldier("enemy", 400, 200, 3, 5, 20)
+player = Soldier("player", 200, 200, 3, 5, 2000, 5)
+enemy = Soldier("enemy", 400, 200, 3, 5, 20, 0)
 
 
 
@@ -299,9 +301,13 @@ while run:
         if shoot:
             player.shoot()
         # throw grenades
-        elif grenade:
-            grenade = Grenade(player.rect.centerx, player.rect.centery, player.direction)
+        elif grenade and not grenade_thrown and  player.grenades > 0:
+            grenade = Grenade(player.rect.centerx + (player.rect.size[0] * player.direction),\
+                            player.rect.top, player.direction)
             grenade_group.add(grenade)
+            grenade_thrown = True
+            player.grenades -= 1
+            # print(player.grenades)
         
         # if player in air cange image to jump
         if player.in_air:
@@ -360,6 +366,7 @@ while run:
             # stop throwing grenade
             if event.key == pygame.K_t:
                 grenade = False
+                grenade_thrown = False
 
 
     # updates screen each frame 
