@@ -221,16 +221,23 @@ class Bullet(pygame.sprite.Sprite):
         if self.rect.right < 0 or self.rect.left > SCREEN_WIDTH:
             self.kill()
 
+
+
+
         # check collision with characters
+        # player
         if pygame.sprite.spritecollide(player, bullet_group, False):
             if player.alive:
                 player.health -= 5
                 self.kill()
-        if pygame.sprite.spritecollide(enemy, bullet_group, False):
-            if enemy.alive:
-                enemy.health -= 25
-                # print(enemy.health)
-                self.kill()
+        # enemies
+        for enemy in enemy_group:
+            if pygame.sprite.spritecollide(enemy, bullet_group, False):
+                if enemy.alive:
+                    enemy.health -= 25
+                    # print(enemy.health)
+                    self.kill()
+
 
 class Grenade(pygame.sprite.Sprite):
     def __init__(self, x, y, direction):
@@ -304,10 +311,6 @@ class Grenade(pygame.sprite.Sprite):
                     enemy.health -= 50
 
 
-
-                
-
-
 class Explosion(pygame.sprite.Sprite):
     def __init__(self, x, y, scale):
         pygame.sprite.Sprite.__init__(self)
@@ -370,7 +373,7 @@ explosion_group = pygame.sprite.Group()
 
 
 player = Soldier("player", 200, 200, 3, 5, 2000, 5)
-enemy = Soldier("enemy", 400, 250, 3, 5, 20, 0)
+enemy = Soldier("enemy", 400, 200, 3, 5, 20, 0)
 enemy_group.add(enemy)
 
 
