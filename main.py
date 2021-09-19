@@ -162,7 +162,14 @@ class Soldier(pygame.sprite.Sprite):
             # control which frame will be displayed
             self.frame_index += 1
             if self.frame_index >= len(self.animation_list[self.action]):
-                self.frame_index = 0
+                if self.action == 3:
+                    self.frame_index = len(self.animation_list[self.action]) - 1
+                else:
+                    self.frame_index = 0
+
+
+
+
 
     def update_action(self, new_action):
         # check if the new action is different than the previous one
