@@ -29,6 +29,8 @@ bullet_img = pygame.image.load("img/icons/bullet.png").convert_alpha()
 
 # Define colors
 BG = (144, 201, 120)
+# BG = "Black"
+
 RED = (255, 0, 0)
 
 # methods
@@ -53,6 +55,9 @@ class Soldier(pygame.sprite.Sprite):
         # and then brought back down to zero such that a player 
         # may only fire when the shoot_cooldown is zero 
         self.shoot_cooldown = 0
+        # set character health
+        self.health = 100
+        self.max_health = self.health
         # 1 (right) or -1 (left) determine if character is looking left or right
         self.direction = 1
         self.vel_y = 0
@@ -68,7 +73,7 @@ class Soldier(pygame.sprite.Sprite):
         
 
         # load all images for the players
-        animation_types = ['Idle', 'Run', 'Jump']
+        animation_types = ['Idle', 'Run', 'Jump', 'Death']
         for animation in animation_types:
             # build animation cycle list for idle
             # reset temp list of images
@@ -89,10 +94,10 @@ class Soldier(pygame.sprite.Sprite):
 
     def update(self):
         self.update_animation()
+        self.check_alive()
         # update shoot cooldown
         if self.shoot_cooldown > 0:
             self.shoot_cooldown -= 1
-
 
     def move(self, moving_left, moving_right):
         # reset movement variables
@@ -167,6 +172,19 @@ class Soldier(pygame.sprite.Sprite):
             self.frame_index = 0
             self.update_time = pygame.time.get_ticks()
 
+
+    def check_alive(self):
+        if self.health <= 0:
+            # set to zero so no negative health
+            self.health = 0
+            # set to zero so that charater doesn't continue moving
+            self.speed = 0
+            # set to False so that character is dead
+            self.alive = False
+
+            self.update_action(3)
+
+
     def draw(self):
         # determine direction to draw character facing and draw
         img_to_flip = self.image
@@ -197,9 +215,12 @@ class Bullet(pygame.sprite.Sprite):
         # check collision with characters
         if pygame.sprite.spritecollide(player, bullet_group, False):
             if player.alive:
+                player.health -= 5
                 self.kill()
         if pygame.sprite.spritecollide(enemy, bullet_group, False):
             if enemy.alive:
+                enemy.health -= 25
+                # print(enemy.health)
                 self.kill()
 
 
@@ -233,6 +254,7 @@ while run:
     player.draw()
 
     # draw enemy
+    enemy.update()
     enemy.draw()
 
     # update and draw groups
