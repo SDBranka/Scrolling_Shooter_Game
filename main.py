@@ -18,6 +18,7 @@ FPS = 60
 
 # Define game variables
 GRAVITY = 0.75
+TILE_SIZE = 40
 
 # Define player action variables
 moving_left = False
@@ -275,8 +276,36 @@ class Grenade(pygame.sprite.Sprite):
             scale_for_explosion = 0.5
             explosion = Explosion(x_pos_of_grenade, y_pos_of_grenade, scale_for_explosion)
             explosion_group.add(explosion)
+            # do damage to anyone that is nearby
+            blast_radius = TILE_SIZE * 2
+            
+            # check for player
+            center_of_grenade_x = self.rect.centerx
+            center_of_player_x = player.rect.centerx
+            center_of_grenade_y = self.rect.centery
+            center_of_player_y = player.rect.centery
+            # if the absolute value of the difference in distance 
+                # between the player and the grenade are within the blast radius
+            if (center_of_grenade_x - center_of_player_x ) < blast_radius and\
+                    (center_of_grenade_y - center_of_player_y ) < blast_radius:
+                # player loses 50 health
+                player.health -= 50
+
+            # check for enemy
+            for enemy in enemy_group:
+                center_of_grenade_x = self.rect.centerx
+                center_of_enemy_x = enemy.rect.centerx
+                center_of_grenade_y = self.rect.centery
+                center_of_enemy_y = enemy.rect.centery               
+                # between the enemy and the grenade are within the blast radius
+                if (center_of_grenade_x - center_of_enemy_x ) < blast_radius and\
+                        (center_of_grenade_y - center_of_enemy_y ) < blast_radius:
+                    # enemy loses 50 health
+                    enemy.health -= 50
 
 
+
+                
 
 
 class Explosion(pygame.sprite.Sprite):
@@ -327,6 +356,8 @@ class Explosion(pygame.sprite.Sprite):
 
 
 # create sprite groups
+# enemies
+enemy_group = pygame.sprite.Group()
 # bullets
 bullet_group = pygame.sprite.Group()
 # grenades
@@ -339,8 +370,8 @@ explosion_group = pygame.sprite.Group()
 
 
 player = Soldier("player", 200, 200, 3, 5, 2000, 5)
-enemy = Soldier("enemy", 400, 200, 3, 5, 20, 0)
-
+enemy = Soldier("enemy", 400, 250, 3, 5, 20, 0)
+enemy_group.add(enemy)
 
 
 run = True
