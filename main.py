@@ -284,7 +284,6 @@ class Explosion(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.images = []
         for num in range(1, 6):
-            # img = pygame.image.load(f'img/explosion/exp{num}.png').convert_alpha()
             img = pygame.image.load(f'img/explosion/exp{num}.png').convert_alpha()
             img = pygame.transform.scale(img, (int(img.get_width() * scale), int(img.get_height() * scale)))
             self.images.append(img)
@@ -295,7 +294,30 @@ class Explosion(pygame.sprite.Sprite):
         self.counter = 0
 
     def update(self):
-        pass
+        # define speed at which animation will run
+        EXPLOSION_SPEED = 4
+        # update explosion animation
+        self.counter += 1
+        # fuse = if the counter reaches the explosion speed
+        if self.counter >= EXPLOSION_SPEED:
+            # the counter resets
+            self.counter = 0
+            # the frame displayed changes
+            self.frame_index += 1
+            # if animation is complete 
+            if self.frame_index >= len(self.images):
+                # delete the explosion
+                self.kill()
+            # if animation is not complete 
+            else:
+                # the image is updated to the new frame
+                self.image = self.images[self.frame_index]
+
+
+
+
+
+
 
     def draw(self):
         pass
