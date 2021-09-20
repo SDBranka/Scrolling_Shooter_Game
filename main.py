@@ -32,7 +32,15 @@ grenade_thrown = False
 bullet_img = pygame.image.load("img/icons/bullet.png").convert_alpha()
 # grenade
 grenade_img = pygame.image.load("img/icons/grenade.png").convert_alpha()
-
+# item boxes
+health_box_img = pygame.image.load("img/icons/health_box.png").convert_alpha()
+ammo_box_img = pygame.image.load("img/icons/ammo_box.png").convert_alpha()
+grenade_box_img = pygame.image.load("img/icons/grenade_box.png").convert_alpha()
+item_boxes = {
+    'Health' : health_box_img,
+    'Ammo' : ammo_box_img,
+    'Grenade' : grenade_box_img
+}
 
 # Define colors
 BG = (144, 201, 120)
@@ -205,6 +213,22 @@ class Soldier(pygame.sprite.Sprite):
         screen.blit(pygame.transform.flip(img_to_flip, flip_in_x_axis, flip_in_y_axis), pos_to_draw_at)
 
 
+
+
+class ItemBox(pygame.sprite.Sprite):
+    def __init__(self, item_type, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.item_type = item_type
+        self.image = item_boxes[self.item_type]
+        self.rect = self.image.get_rect()
+        # // takes the floor of a division
+        self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
+
+
+
+
+
+
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y, direction):
         pygame.sprite.Sprite.__init__(self)
@@ -220,9 +244,6 @@ class Bullet(pygame.sprite.Sprite):
         # check if bullet has left screen
         if self.rect.right < 0 or self.rect.left > SCREEN_WIDTH:
             self.kill()
-
-
-
 
         # check collision with characters
         # player
@@ -367,12 +388,23 @@ bullet_group = pygame.sprite.Group()
 grenade_group = pygame.sprite.Group()
 # explosions
 explosion_group = pygame.sprite.Group()
+# item boxes
+item_box_group = pygame.sprite.Group()
+
+
+# temp create item boxes
+item_box = ItemBox("Health", 100, 260)
+item_box_group.add(item_box)
+item_box = ItemBox("Ammo", 400, 260)
+item_box_group.add(item_box)
+item_box = ItemBox("Grenade", 500, 260)
+item_box_group.add(item_box)
 
 
 
-
-
+# create a player instance
 player = Soldier("player", 200, 200, 3, 5, 2000, 5)
+# create an enemy instance and add it to the enemy group
 enemy = Soldier("enemy", 400, 200, 3, 5, 20, 0)
 enemy_group.add(enemy)
 
@@ -390,14 +422,18 @@ while run:
     player.update()
     player.draw()
 
-    # draw enemy
-    enemy.update()
-    enemy.draw()
+    # update and draw enemies
+    for enemy in enemy_group:
+        enemy.update()
+        enemy.draw()
 
     # update and draw groups
     # draw bullets
     bullet_group.update()
     bullet_group.draw(screen)
+    # draw item_boxs
+    item_box_group.update()
+    item_box_group.draw(screen)
     # draw grenades
     grenade_group.update()
     grenade_group.draw(screen)
