@@ -1,5 +1,7 @@
 import pygame
 import os
+import random
+
 
 # initialize pygame
 pygame.init()
@@ -98,6 +100,11 @@ class Soldier(pygame.sprite.Sprite):
         self.action = 0
         self.update_time = pygame.time.get_ticks()
 
+        # ai specific variables
+        self.move_counter = 0
+        self.idling = False
+        self.idling_counter = 0
+
         # load all images for the players
         animation_types = ['Idle', 'Run', 'Jump', 'Death']
         for animation in animation_types:
@@ -176,14 +183,31 @@ class Soldier(pygame.sprite.Sprite):
 
     def ai(self):
         if self.alive and player.alive:
-            if self.direction == 1:
-                ai_moving_right = True
+            if random.randint(1, 200) == 1:
+                self.idling = True
+                self.idling_counter = 50
+
+            if self.idling == False:
+                # movement code/ when not idling
+                if self.direction == 1:
+                    ai_moving_right = True
+                else:
+                    ai_moving_right = False
+                ai_moving_left = not ai_moving_right
+                # determine the direction of movement and move
+                self.move(ai_moving_left, ai_moving_right)
+                # display run cycle as image
+                self.update_action(1)
+                # count to determine how many steps to take before turning around
+                self.move_counter += 1
+                # determine when to turn around
+                if self.move_counter > TILE_SIZE:
+                    self.direction *= -1
+                    self.move_counter *= -1
             else:
-                ai_moving_right = False
-            ai_moving_left = not ai_moving_right
-            self.move(ai_moving_left, ai_moving_right)
-
-
+                self.idling_counter -= 1
+                if self.idling_counter <= 0:
+                    self.idling = False
 
     def update_animation(self):
         # define timer (controls speed of animation)
@@ -475,8 +499,8 @@ player = Soldier("player", 200, 200, 1.65, 5, 2000, 5)
 # create a health bar
 health_bar = HealthBar(10, 10, player.health, player.health)
 # create an enemy instances and add them to the enemy group
-enemy = Soldier("enemy", 400, 200, 1.65, 5, 20, 0)
-enemy2 = Soldier("enemy", 300, 200, 1.65, 5, 20, 0)
+enemy = Soldier("enemy", 400, 200, 1.65, 2, 20, 0)
+enemy2 = Soldier("enemy", 300, 200, 1.65, 2, 20, 0)
 enemy_group.add(enemy)
 enemy_group.add(enemy2)
 
@@ -505,6 +529,7 @@ while run:
     for x in range(player.grenades):
         # fifteen is width of grenade_img
         screen.blit(grenade_img, (135 + (x * 15), 60))
+
 
     # update and draw player image
     player.update()
