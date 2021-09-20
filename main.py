@@ -47,9 +47,9 @@ BG = (144, 201, 120)
 # BG = "Black"
 RED = (255, 0, 0)
 WHITE = (255, 255, 255)
+GREEN = (0, 255, 0)
 
 # methods
-
 # define font
 font_type = "Futura"
 font_size = 30
@@ -232,7 +232,6 @@ class Soldier(pygame.sprite.Sprite):
         # pygame.draw.rect(where_to_draw_border, color_of_border, around_what_to_draw_border, border_width)
 
 
-
 class ItemBox(pygame.sprite.Sprite):
     def __init__(self, item_type, x, y):
         pygame.sprite.Sprite.__init__(self)
@@ -261,8 +260,32 @@ class ItemBox(pygame.sprite.Sprite):
             self.kill()
             
 
+class HealthBar():
+    def __init__(self, x, y, health, max_health):
+        self.x = x
+        self.y = y
+        self.health = health
+        self.max_health = max_health
 
+    def draw(self, health):
+        # update with new health
+        self.health = health
 
+        # health bar is designed such that there is a constant red
+        # health bar always displayed and a green health bar that 
+        # increments over top of it to show the player's current health
+        # draw the base health bar
+        where_to_draw = screen
+        color_of_rect = RED
+        rect_x_pos = self.x
+        rect_y_pos = self.y
+        rect_width = 150
+        rect_height = 20
+        pygame.draw.rect(where_to_draw, color_of_rect, (rect_x_pos, rect_y_pos, rect_width, rect_height))
+
+        # draw the current health bar
+        ratio = self.health / self.max_health
+        pygame.draw.rect(where_to_draw, GREEN, (rect_x_pos, rect_y_pos, rect_width * ratio, rect_height))
 
 
 class Bullet(pygame.sprite.Sprite):
@@ -440,6 +463,8 @@ item_box_group.add(item_box)
 
 # create a player instance
 player = Soldier("player", 200, 200, 3, 5, 2000, 5)
+# create a health bar
+health_bar = HealthBar(10, 10, player.health, player.health)
 # create an enemy instance and add it to the enemy group
 enemy = Soldier("enemy", 400, 200, 3, 5, 20, 0)
 enemy_group.add(enemy)
@@ -453,6 +478,10 @@ while run:
     # display controls
     # draw background color
     draw_bg()
+
+    # show health
+    health_bar.draw(player.health)
+
 
     # show ammo
     draw_text(f'AMMO: {player.ammo}', font, WHITE, 10, 35)
