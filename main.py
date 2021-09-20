@@ -102,6 +102,12 @@ class Soldier(pygame.sprite.Sprite):
 
         # ai specific variables
         self.move_counter = 0
+        vision_x_start_pos = 0
+        vision_y_start_pos = 0
+        # the larger this number the further the ai can see forward
+        vision_width = 150
+        vision_height = 20
+        self.vision = pygame.Rect(vision_x_start_pos, vision_y_start_pos, vision_width, vision_height)
         self.idling = False
         self.idling_counter = 0
 
@@ -177,18 +183,21 @@ class Soldier(pygame.sprite.Sprite):
     def shoot(self):
         if self.shoot_cooldown == 0 and self.ammo > 0:
             self.shoot_cooldown = 20
-            bullet = Bullet(self.rect.centerx + (0.6 * self.rect.size[0] * self.direction), self.rect.centery, player.direction)
+            bullet = Bullet(self.rect.centerx + (0.75 * self.rect.size[0] * self.direction), self.rect.centery, player.direction)
             bullet_group.add(bullet)
             self.ammo -= 1
 
     def ai(self):
         if self.alive and player.alive:
-            if random.randint(1, 200) == 1:
+            # idle state
+            if self.idling == False and random.randint(1, 200) == 1:
                 self.idling = True
                 self.idling_counter = 50
+                # display idle cycle as image
+                self.update_action(0)
 
+            # movement code/ when not idling
             if self.idling == False:
-                # movement code/ when not idling
                 if self.direction == 1:
                     ai_moving_right = True
                 else:
@@ -200,6 +209,10 @@ class Soldier(pygame.sprite.Sprite):
                 self.update_action(1)
                 # count to determine how many steps to take before turning around
                 self.move_counter += 1
+                # update ai vision as enemy moves
+                self.vision.center = (self.rect.centerx + 75 * self.direction, self.rect.centery)
+                # display a red box around the ai's vision
+                pygame.draw.rect(screen, RED, self.vision, 1)
                 # determine when to turn around
                 if self.move_counter > TILE_SIZE:
                     self.direction *= -1
@@ -208,6 +221,8 @@ class Soldier(pygame.sprite.Sprite):
                 self.idling_counter -= 1
                 if self.idling_counter <= 0:
                     self.idling = False
+
+            
 
     def update_animation(self):
         # define timer (controls speed of animation)
@@ -499,7 +514,7 @@ player = Soldier("player", 200, 200, 1.65, 5, 2000, 5)
 # create a health bar
 health_bar = HealthBar(10, 10, player.health, player.health)
 # create an enemy instances and add them to the enemy group
-enemy = Soldier("enemy", 400, 200, 1.65, 2, 20, 0)
+enemy = Soldier("enemy", 500, 200, 1.65, 2, 20, 0)
 enemy2 = Soldier("enemy", 300, 200, 1.65, 2, 20, 0)
 enemy_group.add(enemy)
 enemy_group.add(enemy2)
