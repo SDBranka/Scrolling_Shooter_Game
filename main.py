@@ -66,9 +66,6 @@ def draw_bg():
 
 
 
-
-
-
 # classes
 class Soldier(pygame.sprite.Sprite):
     def __init__(self, char_type, x, y, scale, speed, ammo, grenades):
@@ -78,13 +75,13 @@ class Soldier(pygame.sprite.Sprite):
         self.char_type = char_type
         self.speed = speed
         self.ammo = ammo
-        self.grenades = grenades
         self.start_ammo = ammo
         # limit the frequency that the player can fire
         # every time the player fires the value is increased
         # and then brought back down to zero such that a player 
         # may only fire when the shoot_cooldown is zero 
         self.shoot_cooldown = 0
+        self.grenades = grenades
         # set character health
         self.health = 100
         self.max_health = self.health
@@ -100,7 +97,6 @@ class Soldier(pygame.sprite.Sprite):
         # character's action: 0 = idle, 1 = run 
         self.action = 0
         self.update_time = pygame.time.get_ticks()
-        
 
         # load all images for the players
         animation_types = ['Idle', 'Run', 'Jump', 'Death']
@@ -177,6 +173,17 @@ class Soldier(pygame.sprite.Sprite):
             bullet = Bullet(self.rect.centerx + (0.6 * self.rect.size[0] * self.direction), self.rect.centery, player.direction)
             bullet_group.add(bullet)
             self.ammo -= 1
+
+    def ai(self):
+        if self.alive and player.alive:
+            if self.direction == 1:
+                ai_moving_right = True
+            else:
+                ai_moving_right = False
+            ai_moving_left = not ai_moving_right
+            self.move(ai_moving_left, ai_moving_right)
+
+
 
     def update_animation(self):
         # define timer (controls speed of animation)
@@ -259,7 +266,7 @@ class ItemBox(pygame.sprite.Sprite):
                 player.grenades += 10
             # delete item box
             self.kill()
-            
+
 
 class HealthBar():
     def __init__(self, x, y, health, max_health):
@@ -271,11 +278,6 @@ class HealthBar():
     def draw(self, health):
         # update with new health
         self.health = health
-
-
-
-
-
 
         # health bar is designed such that there is a constant red
         # health bar always displayed and a green health bar that 
@@ -445,8 +447,6 @@ class Explosion(pygame.sprite.Sprite):
 
 
 
-
-
 # create sprite groups
 # enemies
 enemy_group = pygame.sprite.Group()
@@ -471,18 +471,18 @@ item_box_group.add(item_box)
 
 
 # create a player instance
-player = Soldier("player", 200, 200, 3, 5, 2000, 5)
+player = Soldier("player", 200, 200, 1.65, 5, 2000, 5)
 # create a health bar
 health_bar = HealthBar(10, 10, player.health, player.health)
-# create an enemy instance and add it to the enemy group
-enemy = Soldier("enemy", 400, 200, 3, 5, 20, 0)
+# create an enemy instances and add them to the enemy group
+enemy = Soldier("enemy", 400, 200, 1.65, 5, 20, 0)
+enemy2 = Soldier("enemy", 300, 200, 1.65, 5, 20, 0)
 enemy_group.add(enemy)
-
+enemy_group.add(enemy2)
 
 run = True
 while run:
     CLOCK.tick(FPS)
-
 
     # display controls
     # draw background color
@@ -490,7 +490,6 @@ while run:
 
     # show health
     health_bar.draw(player.health)
-
 
     # show ammo
     draw_text(f'AMMO: {player.ammo}', font, WHITE, 10, 35)
@@ -507,13 +506,13 @@ while run:
         # fifteen is width of grenade_img
         screen.blit(grenade_img, (135 + (x * 15), 60))
 
-
     # update and draw player image
     player.update()
     player.draw()
 
     # update and draw enemies
     for enemy in enemy_group:
+        enemy.ai()
         enemy.update()
         enemy.draw()
 
@@ -557,7 +556,6 @@ while run:
             player.update_action(0)
         # move player
         player.move(moving_left, moving_right)
-
 
 
 
@@ -608,7 +606,6 @@ while run:
 
     # updates screen each frame 
     pygame.display.update()
-
 
 
 pygame.quit()
