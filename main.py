@@ -48,6 +48,7 @@ BG = (144, 201, 120)
 RED = (255, 0, 0)
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
+BLACK = (0, 0, 0)
 
 # methods
 # define font
@@ -271,16 +272,24 @@ class HealthBar():
         # update with new health
         self.health = health
 
+
+
+
+
+
         # health bar is designed such that there is a constant red
         # health bar always displayed and a green health bar that 
         # increments over top of it to show the player's current health
-        # draw the base health bar
         where_to_draw = screen
         color_of_rect = RED
         rect_x_pos = self.x
         rect_y_pos = self.y
         rect_width = 150
         rect_height = 20
+        # draw a border for the health bar
+        pygame.draw.rect(where_to_draw, BLACK, (rect_x_pos - 2, rect_y_pos - 2, rect_width + 4, rect_height + 4))
+
+        # draw the base health bar
         pygame.draw.rect(where_to_draw, color_of_rect, (rect_x_pos, rect_y_pos, rect_width, rect_height))
 
         # draw the current health bar
