@@ -211,7 +211,12 @@ class Soldier(pygame.sprite.Sprite):
         pos_to_draw_at = self.rect
         # draws to screen
         screen.blit(pygame.transform.flip(img_to_flip, flip_in_x_axis, flip_in_y_axis), pos_to_draw_at)
-
+        # # draw border around character rectangles
+        # where_to_draw_border = screen
+        # color_of_border = RED
+        # around_what_to_draw_border = self.rect
+        # border_width = 1
+        # pygame.draw.rect(where_to_draw_border, color_of_border, around_what_to_draw_border, border_width)
 
 
 
@@ -224,6 +229,21 @@ class ItemBox(pygame.sprite.Sprite):
         # // takes the floor of a division
         self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
 
+    def update(self):
+        # collision - player pick up box
+        item_box_to_collide = self
+        character_to_collide = player
+        if pygame.sprite.collide_rect(item_box_to_collide, character_to_collide):
+            # check type of item box
+            if self.item_type == 'Health':
+                player.health += 25
+            elif self.item_type == 'Ammo':
+                player.ammo += 50
+            elif self.item_type == 'Grenade':
+                player.grenades += 10
+            # delete item box
+            self.kill()
+            
 
 
 
