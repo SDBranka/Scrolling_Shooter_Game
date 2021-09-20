@@ -456,6 +456,19 @@ while run:
 
     # show ammo
     draw_text(f'AMMO: {player.ammo}', font, WHITE, 10, 35)
+    # # show ammo as images
+    # draw_text('AMMO: ', font, WHITE, 10, 35)
+    # for x in range(player.ammo):
+    #     screen.blit(bullet_img, (90 + (x * 10), 40))
+
+    # # show grenades
+    # draw_text(f'GRENADES: {player.grenades}', font, WHITE, 10, 60)
+    # show grenades as images
+    draw_text('GRENADES: ', font, WHITE, 10, 60)
+    for x in range(player.grenades):
+        # fifteen is width of grenade_img
+        screen.blit(grenade_img, (135 + (x * 15), 60))
+
 
     # update and draw player image
     player.update()
