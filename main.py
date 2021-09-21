@@ -45,8 +45,8 @@ item_boxes = {
 }
 
 # Define colors
-BG = (144, 201, 120)
-# BG = "Black"
+# BG = (144, 201, 120)
+BG = "Black"
 RED = (255, 0, 0)
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
@@ -89,10 +89,11 @@ class Soldier(pygame.sprite.Sprite):
         self.max_health = self.health
         # 1 (right) or -1 (left) determine if character is looking left or right
         self.direction = 1
+        self.flip = False
+        # jump variables
         self.vel_y = 0
         self.jump = False
         self.in_air = True
-        self.flip = False
         # control which frame of animation cycle is displayed
         self.animation_list = []
         self.frame_index = 0
@@ -183,46 +184,52 @@ class Soldier(pygame.sprite.Sprite):
     def shoot(self):
         if self.shoot_cooldown == 0 and self.ammo > 0:
             self.shoot_cooldown = 20
-            bullet = Bullet(self.rect.centerx + (0.75 * self.rect.size[0] * self.direction), self.rect.centery, player.direction)
+            bullet = Bullet(self.rect.centerx + (0.75 * self.rect.size[0] * self.direction), self.rect.centery, self.direction)
             bullet_group.add(bullet)
+			#reduce ammo
             self.ammo -= 1
 
     def ai(self):
         if self.alive and player.alive:
             # idle state
             if self.idling == False and random.randint(1, 200) == 1:
-                self.idling = True
-                self.idling_counter = 50
                 # display idle cycle as image
                 self.update_action(0)
+                self.idling = True
+                self.idling_counter = 50
 
+            # check if the ai is near the player
+            if self.vision.colliderect(player.rect):
+                # stop running and fire weapon
+                self.update_action(0)
+                self.shoot()
             # movement code/ when not idling
-            if self.idling == False:
-                if self.direction == 1:
-                    ai_moving_right = True
-                else:
-                    ai_moving_right = False
-                ai_moving_left = not ai_moving_right
-                # determine the direction of movement and move
-                self.move(ai_moving_left, ai_moving_right)
-                # display run cycle as image
-                self.update_action(1)
-                # count to determine how many steps to take before turning around
-                self.move_counter += 1
-                # update ai vision as enemy moves
-                self.vision.center = (self.rect.centerx + 75 * self.direction, self.rect.centery)
-                # display a red box around the ai's vision
-                pygame.draw.rect(screen, RED, self.vision, 1)
-                # determine when to turn around
-                if self.move_counter > TILE_SIZE:
-                    self.direction *= -1
-                    self.move_counter *= -1
             else:
-                self.idling_counter -= 1
-                if self.idling_counter <= 0:
-                    self.idling = False
+                if self.idling == False:
+                    if self.direction == 1:
+                        ai_moving_right = True
+                    else:
+                        ai_moving_right = False
+                    ai_moving_left = not ai_moving_right
+                    # determine the direction of movement and move
+                    self.move(ai_moving_left, ai_moving_right)
+                    # display run cycle as image
+                    self.update_action(1)
+                    # count to determine how many steps to take before turning around
+                    self.move_counter += 1
 
-            
+                    # update ai vision as enemy moves
+                    self.vision.center = (self.rect.centerx + 75 * self.direction, self.rect.centery)
+                    # # display a red box around the ai's vision
+                    # pygame.draw.rect(screen, RED, self.vision, 1)                
+                    # determine when to turn around
+                    if self.move_counter > TILE_SIZE:
+                        self.direction *= -1
+                        self.move_counter *= -1
+                else:
+                    self.idling_counter -= 1
+                    if self.idling_counter <= 0:
+                        self.idling = False
 
     def update_animation(self):
         # define timer (controls speed of animation)
@@ -275,6 +282,7 @@ class Soldier(pygame.sprite.Sprite):
         # where_to_draw_border = screen
         # color_of_border = RED
         # around_what_to_draw_border = self.rect
+        # # if border_width is not included as an argument the rect displays filled with the color
         # border_width = 1
         # pygame.draw.rect(where_to_draw_border, color_of_border, around_what_to_draw_border, border_width)
 
@@ -365,7 +373,6 @@ class Bullet(pygame.sprite.Sprite):
             if pygame.sprite.spritecollide(enemy, bullet_group, False):
                 if enemy.alive:
                     enemy.health -= 25
-                    # print(enemy.health)
                     self.kill()
 
 
@@ -423,8 +430,8 @@ class Grenade(pygame.sprite.Sprite):
             center_of_player_y = player.rect.centery
             # if the absolute value of the difference in distance 
                 # between the player and the grenade are within the blast radius
-            if (center_of_grenade_x - center_of_player_x ) < blast_radius and\
-                    (center_of_grenade_y - center_of_player_y ) < blast_radius:
+            if abs(center_of_grenade_x - center_of_player_x ) < blast_radius and\
+                    abs(center_of_grenade_y - center_of_player_y ) < blast_radius:
                 # player loses 50 health
                 player.health -= 50
 
@@ -435,8 +442,8 @@ class Grenade(pygame.sprite.Sprite):
                 center_of_grenade_y = self.rect.centery
                 center_of_enemy_y = enemy.rect.centery               
                 # between the enemy and the grenade are within the blast radius
-                if (center_of_grenade_x - center_of_enemy_x ) < blast_radius and\
-                        (center_of_grenade_y - center_of_enemy_y ) < blast_radius:
+                if abs(center_of_grenade_x - center_of_enemy_x ) < blast_radius and\
+                        abs(center_of_grenade_y - center_of_enemy_y ) < blast_radius:
                     # enemy loses 50 health
                     enemy.health -= 50
 
