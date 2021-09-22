@@ -286,7 +286,7 @@ class Soldier(pygame.sprite.Sprite):
                     self.idling_counter -= 1
                     if self.idling_counter <= 0:
                         self.idling = False
-                        
+
         # scroll enemies
         self.rect.x += screen_scroll
 
@@ -419,6 +419,8 @@ class Decoration(pygame.sprite.Sprite):
         # by half to place in middle of the square
         self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
 
+    def update(self):
+        self.rect.x += screen_scroll
 
 class Water(pygame.sprite.Sprite):
     def __init__(self, img, x, y):
@@ -428,6 +430,9 @@ class Water(pygame.sprite.Sprite):
         # by half to place in middle of the square
         self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
 
+    def update(self):
+        self.rect.x += screen_scroll
+
 
 class Exit(pygame.sprite.Sprite):
     def __init__(self, img, x, y):
@@ -436,6 +441,9 @@ class Exit(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         # by half to place in middle of the square
         self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
+
+    def update(self):
+        self.rect.x += screen_scroll
 
 
 class ItemBox(pygame.sprite.Sprite):
@@ -448,6 +456,9 @@ class ItemBox(pygame.sprite.Sprite):
         self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
 
     def update(self):
+        # scroll
+        self.rect.x += screen_scroll
+
         # collision - player pick up box
         item_box_to_collide = self
         character_to_collide = player
