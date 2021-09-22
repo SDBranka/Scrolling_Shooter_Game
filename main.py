@@ -202,13 +202,12 @@ class Soldier(pygame.sprite.Sprite):
                 # check if player is below the ground (ie jumping)
                 if self.vel_y < 0:
                     self.vel_y = 0
-                    self.in_air = False
                     dy = tile[1].bottom - self.rect.top
                 # check if above the ground (ie falling)
                 elif self.vel_y >= 0:
                     self.vel_y = 0
-                    dy = tile[1].top - self.rect.bottom
                     self.in_air = False
+                    dy = tile[1].top - self.rect.bottom
 
         # update rectangle position
         self.rect.x += dx
@@ -512,6 +511,8 @@ class Grenade(pygame.sprite.Sprite):
         self.image = grenade_img
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
         self.direction = direction
 
     def update(self):
@@ -525,14 +526,49 @@ class Grenade(pygame.sprite.Sprite):
         # if the bottom of the grenade is going 
         # below the line drawn correct the position 
         # to the level of the floor
-        if self.rect.bottom + dy > 300:
-            dy = 300 - self.rect.bottom
-            # without setting this self.speed to zero the grenade bowls
-            self.speed = 0
-        # check if grenade collision with screen edge
-        if self.rect.left + dx < 0 or self.rect.right + dx > SCREEN_WIDTH:
-            self.direction *= -1
-            dx = self.direction * self.speed
+        # if self.rect.bottom + dy > 300:
+        #     dy = 300 - self.rect.bottom
+        #     # without setting this self.speed to zero the grenade bowls
+        #     self.speed = 0
+        # # check if grenade collision with screen edge
+        # if self.rect.left + dx < 0 or self.rect.right + dx > SCREEN_WIDTH:
+        #     self.direction *= -1
+        #     dx = self.direction * self.speed
+
+        # check for collision with level
+        for tile in world.obstacle_list:
+            # check if grenade collision with wall
+            if tile[1].colliderect(self.rect.x + dx, self.rect.y + dx, self.width, self.height):
+                self.direction *= -1
+                dx = self.direction * self.speed
+
+
+            # check collision in the y direction
+            if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
+                self.speed = 0
+                # check if grenade is below the ground
+                if self.vel_y < 0:
+                    self.vel_y = 0
+                    dy = tile[1].bottom - self.rect.top
+                # check if above the ground (ie falling)
+                elif self.vel_y >= 0:
+                    self.vel_y = 0
+                    dy = tile[1].top - self.rect.bottom
+
+
+
+
+
+
+        # if self.rect.bottom + dy > 300:
+        #     dy = 300 - self.rect.bottom
+        #     # without setting this self.speed to zero the grenade bowls
+        #     self.speed = 0
+
+
+
+
+
 
         # update grenade position
         self.rect.x += dx
