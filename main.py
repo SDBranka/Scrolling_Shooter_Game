@@ -21,10 +21,14 @@ FPS = 60
 
 # Define game variables
 GRAVITY = 0.75
+# the distance a player can get to the edge of the screen before it scrolls
+SCROLL_THRESH = 200
 ROWS = 16
 COLS = 150
 TILE_SIZE = SCREEN_HEIGHT // ROWS
 TILE_TYPES = 21
+screen_scroll = 0
+bg_scroll = 0
 level = 0
 
 # Define player action variables
@@ -169,6 +173,7 @@ class Soldier(pygame.sprite.Sprite):
     def move(self, moving_left, moving_right):
         # reset movement variables
         # change in x and y 
+        screen_scroll = 0
         dx = 0
         dy = 0
 
@@ -224,6 +229,14 @@ class Soldier(pygame.sprite.Sprite):
         self.rect.x += dx
         self.rect.y += dy
 
+        # update scroll based on player position
+        if self.char_type == "player":
+            if self.rect.right > SCREEN_WIDTH - SCROLL_THRESH or self.rect.left < SCROLL_THRESH:
+                self.rect.x -= dx
+                screen_scroll = -dx
+
+        return screen_scroll
+
     def shoot(self):
         if self.shoot_cooldown == 0 and self.ammo > 0:
             self.shoot_cooldown = 20
@@ -273,6 +286,9 @@ class Soldier(pygame.sprite.Sprite):
                     self.idling_counter -= 1
                     if self.idling_counter <= 0:
                         self.idling = False
+                        
+        # scroll enemies
+        self.rect.x += screen_scroll
 
     def update_animation(self):
         # define timer (controls speed of animation)
@@ -390,6 +406,8 @@ class World():
 
     def draw(self):
         for tile in self.obstacle_list:
+            # add screen_scroll to the x coordinate of the rect in tile
+            tile[1][0] += screen_scroll
             screen.blit(tile[0], tile[1])
 
 
@@ -553,7 +571,6 @@ class Grenade(pygame.sprite.Sprite):
                 self.direction *= -1
                 dx = self.direction * self.speed
 
-
             # check collision in the y direction
             if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
                 # if you don't reset speed to zero the grenade just keeps rolling
@@ -566,21 +583,6 @@ class Grenade(pygame.sprite.Sprite):
                 elif self.vel_y >= 0:
                     self.vel_y = 0
                     dy = tile[1].top - self.rect.bottom
-
-
-
-
-
-
-        # if self.rect.bottom + dy > 300:
-        #     dy = 300 - self.rect.bottom
-        #     # without setting this self.speed to zero the grenade bowls
-        #     self.speed = 0
-
-
-
-
-
 
         # update grenade position
         self.rect.x += dx
@@ -787,8 +789,8 @@ while run:
         else:
             player.update_action(0)
         # move player
-        player.move(moving_left, moving_right)
-
+        screen_scroll = player.move(moving_left, moving_right)
+        # print(screen_scroll)
 
 
     # event handler
