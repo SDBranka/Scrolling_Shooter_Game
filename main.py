@@ -78,7 +78,7 @@ def draw_text(text_to_display, font, text_color, x, y):
 
 def draw_bg():
     screen.fill(BG)
-    pygame.draw.line(screen, RED, (0, 300), (SCREEN_WIDTH, 300))
+    # pygame.draw.line(screen, RED, (0, 300), (SCREEN_WIDTH, 300))
 
 
 
@@ -545,6 +545,7 @@ class Grenade(pygame.sprite.Sprite):
 
             # check collision in the y direction
             if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
+                # if you don't reset speed to zero the grenade just keeps rolling
                 self.speed = 0
                 # check if grenade is below the ground
                 if self.vel_y < 0:
