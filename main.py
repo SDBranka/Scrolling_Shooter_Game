@@ -321,10 +321,12 @@ class World():
                         self.obstacle_list.append(tile_data)
                     # if tile is a water block
                     elif tile == 9 or tile == 100:
-                        pass
+                        water = Water(img, x * TILE_SIZE, y * TILE_SIZE)
+                        water_group.add(water)
                     # if tile is decorations
                     elif tile >= 11 and tile <= 14:
-                        pass
+                        decoration = Decoration(img, x * TILE_SIZE, y * TILE_SIZE)
+                        decoration_group.add(decoration)
                     # if tile is player create a player
                     elif tile == 15:
                         # create a player instance
@@ -352,7 +354,8 @@ class World():
                         item_box_group.add(item_box)
                     # exit tile
                     elif tile == 20:
-                        pass
+                        exit = Exit(img, x * TILE_SIZE, y * TILE_SIZE)
+                        exit_group.add(exit)
 
         return player, health_bar
 
@@ -360,8 +363,31 @@ class World():
         for tile in self.obstacle_list:
             screen.blit(tile[0], tile[1])
 
+class Decoration(pygame.sprite.Sprite):
+    def __init__(self, img, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = img
+        self.rect = self.image.get_rect()
+        # by half to place in middle of the square
+        self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
 
 
+class Water(pygame.sprite.Sprite):
+    def __init__(self, img, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = img
+        self.rect = self.image.get_rect()
+        # by half to place in middle of the square
+        self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
+
+
+class Exit(pygame.sprite.Sprite):
+    def __init__(self, img, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = img
+        self.rect = self.image.get_rect()
+        # by half to place in middle of the square
+        self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
 
 
 
@@ -584,6 +610,13 @@ grenade_group = pygame.sprite.Group()
 explosion_group = pygame.sprite.Group()
 # item boxes
 item_box_group = pygame.sprite.Group()
+# decoration
+decoration_group = pygame.sprite.Group()
+# water
+water_group = pygame.sprite.Group()
+# exit
+exit_group = pygame.sprite.Group()
+
 
 
 # load in level data
@@ -642,19 +675,23 @@ while run:
         enemy.update()
         enemy.draw()
 
-    # update and draw groups
-    # draw bullets
+    # update and draw groups to screen
     bullet_group.update()
-    bullet_group.draw(screen)
-    # draw item_boxs
-    item_box_group.update()
-    item_box_group.draw(screen)
-    # draw grenades
     grenade_group.update()
-    grenade_group.draw(screen)
-    # handle explosions
     explosion_group.update()
+    item_box_group.update()
+    decoration_group.update()
+    water_group.update()
+    exit_group.update()
+
+    bullet_group.draw(screen)
+    grenade_group.draw(screen)
     explosion_group.draw(screen)
+    item_box_group.draw(screen)
+    decoration_group.draw(screen)
+    water_group.draw(screen)
+    exit_group.draw(screen)
+
     
 
     # update player actions if player is alive
