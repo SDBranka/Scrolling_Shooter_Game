@@ -91,10 +91,13 @@ def draw_text(text_to_display, font, text_color, x, y):
 def draw_bg():
     screen.fill(BG)
     # pygame.draw.line(screen, RED, (0, 300), (SCREEN_WIDTH, 300))
-    screen.blit(sky_img, (0, 0))
-    screen.blit(mountain_img, (0, SCREEN_HEIGHT - mountain_img.get_height() - 300))
-    screen.blit(pine1_img, (0, SCREEN_HEIGHT - pine1_img.get_height() - 150))
-    screen.blit(pine2_img, (0, SCREEN_HEIGHT - pine2_img.get_height()))
+    width = sky_img.get_width()
+    for x in range(5):
+        # the multiplier of bg_scroll slows the screen scroll down for that layer depending on it's distance from the foreground
+        screen.blit(sky_img, ((x * width) - bg_scroll * 0.5 , 0))
+        screen.blit(mountain_img, ((x * width) - bg_scroll * 0.6, SCREEN_HEIGHT - mountain_img.get_height() - 300))
+        screen.blit(pine1_img, ((x * width) - bg_scroll * 0.7, SCREEN_HEIGHT - pine1_img.get_height() - 150))
+        screen.blit(pine2_img, ((x * width) - bg_scroll * 0.8, SCREEN_HEIGHT - pine2_img.get_height()))
 
 
 # classes
@@ -225,13 +228,19 @@ class Soldier(pygame.sprite.Sprite):
                     self.in_air = False
                     dy = tile[1].top - self.rect.bottom
 
+        # check/stop if player has approached beginning/end of level
+        if self.char_type == "player":
+            if self.rect.left + dx < 0 or self.rect.right + dx > SCREEN_WIDTH:
+                dx = 0
+
         # update rectangle position
         self.rect.x += dx
         self.rect.y += dy
 
         # update scroll based on player position
         if self.char_type == "player":
-            if self.rect.right > SCREEN_WIDTH - SCROLL_THRESH or self.rect.left < SCROLL_THRESH:
+            if (self.rect.right > SCREEN_WIDTH - SCROLL_THRESH and bg_scroll < (world.level_length * TILE_SIZE) - SCREEN_WIDTH)\
+                    or (self.rect.left < SCROLL_THRESH and bg_scroll > abs(dx)):
                 self.rect.x -= dx
                 screen_scroll = -dx
 
@@ -351,6 +360,8 @@ class World():
         self.obstacle_list = []
 
     def process_data(self, data):
+        # work out how long the level is
+        self.level_length = len(data[0])
         # iterate through each value in level data file
         for y, row in enumerate(data):
             for x, tile in enumerate(row):
@@ -421,6 +432,7 @@ class Decoration(pygame.sprite.Sprite):
 
     def update(self):
         self.rect.x += screen_scroll
+
 
 class Water(pygame.sprite.Sprite):
     def __init__(self, img, x, y):
@@ -519,7 +531,7 @@ class Bullet(pygame.sprite.Sprite):
     
     def update(self):
         # move bullet
-        self.rect.x += (self.direction * self.speed)
+        self.rect.x += (self.direction * self.speed) + screen_scroll
         # check if bullet has left screen
         if self.rect.right < 0 or self.rect.left > SCREEN_WIDTH:
             self.kill()
@@ -596,8 +608,10 @@ class Grenade(pygame.sprite.Sprite):
                     dy = tile[1].top - self.rect.bottom
 
         # update grenade position
-        self.rect.x += dx
+        self.rect.x += dx + screen_scroll
         self.rect.y += dy
+
+
 
         # countdown timer for explosion
         self.timer -= 1
@@ -651,6 +665,9 @@ class Explosion(pygame.sprite.Sprite):
         self.counter = 0
 
     def update(self):
+        # scroll
+        self.rect.x += screen_scroll
+
         # define speed at which animation will run
         EXPLOSION_SPEED = 4
         # update explosion animation
@@ -799,10 +816,10 @@ while run:
         # if player is not moving change image to idle
         else:
             player.update_action(0)
-        # move player
+        # move player and set the screen scroll value
         screen_scroll = player.move(moving_left, moving_right)
         # print(screen_scroll)
-
+        bg_scroll -= screen_scroll
 
     # event handler
     for event in pygame.event.get():
