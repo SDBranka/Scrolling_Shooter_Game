@@ -205,6 +205,7 @@ class Soldier(pygame.sprite.Sprite):
         if self.vel_y > vel_y_limit:
             self.vel_y 
         dy += self.vel_y
+
         # add floor
         # if the bottom of the player is going below the line drawn
         # correct the position to the level of the floor
@@ -216,6 +217,10 @@ class Soldier(pygame.sprite.Sprite):
             # check collision in the x direction
             if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
                 dx = 0
+                # if ai has hit a wall, turn it around
+                if self.char_type == "enemy":
+                    self.direction *= -1
+                    self.move_counter = 0
             # check collision in the y direction
             if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
                 # check if player is below the ground (ie jumping)
