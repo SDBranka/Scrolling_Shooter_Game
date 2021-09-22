@@ -145,6 +145,8 @@ class Soldier(pygame.sprite.Sprite):
         self.image = self.animation_list[self.action][self.frame_index]
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
 
     def update(self):
         self.update_animation()
@@ -187,9 +189,26 @@ class Soldier(pygame.sprite.Sprite):
         # add floor
         # if the bottom of the player is going below the line drawn
         # correct the position to the level of the floor
-        if self.rect.bottom + dy > 300:
-            dy = 300 - self.rect.bottom
-            self.in_air = False
+        # if self.rect.bottom + dy > 300:
+        #     dy = 300 - self.rect.bottom
+        #     self.in_air = False
+        # check for collision
+        for tile in world.obstacle_list:
+            # check collision in the x direction
+            if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
+                dx = 0
+            # check collision in the y direction
+            if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
+                # check if player is below the ground (ie jumping)
+                if self.vel_y < 0:
+                    self.vel_y = 0
+                    self.in_air = False
+                    dy = tile[1].bottom - self.rect.top
+                # check if above the ground (ie falling)
+                if self.vel_y >= 0:
+                    self.vel_y = 0
+                    dy = tile[1].top - self.rect.bottom
+                    self.in_air = False
 
         # update rectangle position
         self.rect.x += dx
@@ -363,6 +382,7 @@ class World():
         for tile in self.obstacle_list:
             screen.blit(tile[0], tile[1])
 
+
 class Decoration(pygame.sprite.Sprite):
     def __init__(self, img, x, y):
         pygame.sprite.Sprite.__init__(self)
@@ -388,9 +408,6 @@ class Exit(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         # by half to place in middle of the square
         self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
-
-
-
 
 
 class ItemBox(pygame.sprite.Sprite):
