@@ -205,7 +205,7 @@ class Soldier(pygame.sprite.Sprite):
                     self.in_air = False
                     dy = tile[1].bottom - self.rect.top
                 # check if above the ground (ie falling)
-                if self.vel_y >= 0:
+                elif self.vel_y >= 0:
                     self.vel_y = 0
                     dy = tile[1].top - self.rect.bottom
                     self.in_air = False
@@ -497,6 +497,10 @@ class Bullet(pygame.sprite.Sprite):
                 if enemy.alive:
                     enemy.health -= 25
                     self.kill()
+        # with world
+        for tile in world.obstacle_list:
+            if tile[1].colliderect(self.rect):
+                self.kill()
 
 
 class Grenade(pygame.sprite.Sprite):
