@@ -35,6 +35,14 @@ grenade = False
 grenade_thrown = False
 
 # Load images
+
+# background images
+pine1_img = pygame.image.load("img/background/pine1.png").convert_alpha()
+pine2_img = pygame.image.load("img/background/pine2.png").convert_alpha()
+mountain_img = pygame.image.load("img/background/mountain.png").convert_alpha()
+sky_img = pygame.image.load("img/background/sky_cloud.png").convert_alpha()
+
+
 # store tiles in a list
 img_list = []
 for x in range(TILE_TYPES):
@@ -79,7 +87,10 @@ def draw_text(text_to_display, font, text_color, x, y):
 def draw_bg():
     screen.fill(BG)
     # pygame.draw.line(screen, RED, (0, 300), (SCREEN_WIDTH, 300))
-
+    screen.blit(sky_img, (0, 0))
+    screen.blit(mountain_img, (0, SCREEN_HEIGHT - mountain_img.get_height() - 300))
+    screen.blit(pine1_img, (0, SCREEN_HEIGHT - pine1_img.get_height() - 150))
+    screen.blit(pine2_img, (0, SCREEN_HEIGHT - pine2_img.get_height()))
 
 
 # classes
