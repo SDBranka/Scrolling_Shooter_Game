@@ -757,8 +757,10 @@ while run:
         # draw main menu
         screen.fill(BG)
         # draw buttons
-        start_button.draw(screen)
-        exit_button.draw(screen)
+        if start_button.draw(screen):
+            start_game = True
+        if exit_button.draw(screen):
+            run = False 
 
     else:
         # display controls
