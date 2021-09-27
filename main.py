@@ -44,6 +44,7 @@ grenade_thrown = False
 # button images
 start_img = pygame.image.load("img/start_btn.png").convert_alpha()
 exit_img = pygame.image.load("img/exit_btn.png").convert_alpha()
+restart_img = pygame.image.load("img/restart_btn.png").convert_alpha()
 
 # background images
 pine1_img = pygame.image.load("img/background/pine1.png").convert_alpha()
@@ -87,7 +88,6 @@ BLACK = (0, 0, 0)
 font_type = "Futura"
 font_size = 30
 font = pygame.font.SysFont(font_type, font_size)
-
 def draw_text(text_to_display, font, text_color, x, y):
     img = font.render(text_to_display, True, text_color)
     screen.blit(img, (x, y))
@@ -102,6 +102,26 @@ def draw_bg():
         screen.blit(mountain_img, ((x * width) - bg_scroll * 0.6, SCREEN_HEIGHT - mountain_img.get_height() - 300))
         screen.blit(pine1_img, ((x * width) - bg_scroll * 0.7, SCREEN_HEIGHT - pine1_img.get_height() - 150))
         screen.blit(pine2_img, ((x * width) - bg_scroll * 0.8, SCREEN_HEIGHT - pine2_img.get_height()))
+
+# function to reset level
+def reset_level():
+    enemy_group.empty()
+    bullet_group.empty()
+    grenade_group.empty()
+    explosion_group.empty()
+    item_box_group.empty()
+    decoration_group.empty()
+    water_group.empty()
+    exit_group.empty()
+    
+    # create empty tile list
+    data = []
+    for row in range(ROWS):
+        r = [-1] * COLS
+        data.append(r)
+    
+    return data
+
 
 
 # classes
@@ -236,6 +256,16 @@ class Soldier(pygame.sprite.Sprite):
                     self.vel_y = 0
                     self.in_air = False
                     dy = tile[1].top - self.rect.bottom
+
+        # check for collision with water
+            # checks for collision between a sprite and a group
+            # set to false because we want to display a death sequence
+        if pygame.sprite.spritecollide(self, water_group, False):
+            self.health = 0
+        
+        # check if fallen off map
+        if self.rect.bottom > SCREEN_HEIGHT:
+            self.health = 0
 
         # check/stop if player has approached beginning/end of level
         if self.char_type == "player":
@@ -710,6 +740,7 @@ class Explosion(pygame.sprite.Sprite):
 # create buttons
 start_button = button.Button(SCREEN_WIDTH // 2 - 130, SCREEN_HEIGHT // 2 - 150, start_img, 1)
 exit_button = button.Button(SCREEN_WIDTH // 2 - 110, SCREEN_HEIGHT // 2 + 50, exit_img, 1)
+restart_button = button.Button(SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 - 50, restart_img, 2)
 
 # create sprite groups
 # enemies
@@ -746,6 +777,8 @@ with open(f'level{level}_data.csv', newline = "") as csvfile:
 
 world = World()
 player, health_bar = world.process_data(world_data)
+
+
 
 run = True
 while run:
@@ -829,7 +862,6 @@ while run:
                 grenade_thrown = True
                 player.grenades -= 1
                 # print(player.grenades)
-            
             # if player in air cange image to jump
             if player.in_air:
                 player.update_action(2)
@@ -843,6 +875,22 @@ while run:
             screen_scroll = player.move(moving_left, moving_right)
             # print(screen_scroll)
             bg_scroll -= screen_scroll
+        # if the player is dead
+        else:
+            # since players screen scroll is either a positive or negative number, we set it to zero to ensure the screen does not keep moving after a players death
+            screen_scroll = 0
+            if restart_button.draw(screen):
+                bg_scroll = 0
+                world_data = reset_level()
+                # load in level data and create world
+                with open(f'level{level}_data.csv', newline = "") as csvfile:
+                    reader = csv.reader(csvfile, delimiter = ",")
+                    for x, row in enumerate(reader):
+                        for y, tile in enumerate(row):
+                            world_data[x][y] = int(tile)
+                world = World()
+                player, health_bar = world.process_data(world_data)
+                
 
     # event handler
     for event in pygame.event.get():
