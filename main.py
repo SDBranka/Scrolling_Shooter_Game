@@ -1,10 +1,12 @@
 import pygame
+from pygame import mixer
 import os
 import random
 import csv
 import button
 
-
+# initialize the mixer
+mixer.init()
 # initialize pygame
 pygame.init()
 
@@ -40,6 +42,24 @@ moving_right = False
 shoot = False
 grenade = False
 grenade_thrown = False
+
+# Load audio
+pygame.mixer.music.load("audio/music2.mp3")
+pygame.mixer.music.set_volume(0.3)
+# loops set to -1 means music loops indefinitely
+music_loops = -1
+music_delay = 0.0
+music_fade = 5000
+pygame.mixer.music.play(music_loops, music_delay, music_fade)
+jump_fx = pygame.mixer.Sound("audio/jump.wav")
+jump_fx.set_volume(0.5)
+shot_fx = pygame.mixer.Sound("audio/shot.wav")
+shot_fx.set_volume(0.5)
+grenade_fx = pygame.mixer.Sound("audio/grenade.wav")
+grenade_fx.set_volume(0.5)
+
+
+
 
 # Load images
 # button images
@@ -935,6 +955,7 @@ while run:
             # jump
             if event.key == pygame.K_e and player.alive:
                 player.jump = True
+                jump_fx.play()
             # fire weapon 
             if event.key == pygame.K_SPACE:
                 shoot = True
