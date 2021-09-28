@@ -30,7 +30,8 @@ TILE_SIZE = SCREEN_HEIGHT // ROWS
 TILE_TYPES = 21
 screen_scroll = 0
 bg_scroll = 0
-level = 0
+MAX_LEVELS = 3
+level = 1
 start_game = False
 
 # Define player action variables
@@ -262,7 +263,12 @@ class Soldier(pygame.sprite.Sprite):
             # set to false because we want to display a death sequence
         if pygame.sprite.spritecollide(self, water_group, False):
             self.health = 0
-        
+
+        # check for collision with exit
+        level_complete = False
+        if pygame.sprite.spritecollide(self, exit_group, False):
+            level_complete = True
+
         # check if fallen off map
         if self.rect.bottom > SCREEN_HEIGHT:
             self.health = 0
@@ -283,7 +289,7 @@ class Soldier(pygame.sprite.Sprite):
                 self.rect.x -= dx
                 screen_scroll = -dx
 
-        return screen_scroll
+        return screen_scroll, level_complete
 
     def shoot(self):
         if self.shoot_cooldown == 0 and self.ammo > 0:
@@ -872,9 +878,26 @@ while run:
             else:
                 player.update_action(0)
             # move player and set the screen scroll value
-            screen_scroll = player.move(moving_left, moving_right)
+                # also checks to see if the level has been completed
+            screen_scroll, level_complete = player.move(moving_left, moving_right)
             # print(screen_scroll)
+            # print(level_complete)
             bg_scroll -= screen_scroll
+            # check if player has completed the level
+            if level_complete:
+                level += 1
+                bg_scroll = 0
+                world_data = reset_level()
+                if level <= MAX_LEVELS:
+                    # load in level data and create world
+                    with open(f'level{level}_data.csv', newline = "") as csvfile:
+                        reader = csv.reader(csvfile, delimiter = ",")
+                        for x, row in enumerate(reader):
+                            for y, tile in enumerate(row):
+                                world_data[x][y] = int(tile)
+                    world = World()
+                    player, health_bar = world.process_data(world_data)
+
         # if the player is dead
         else:
             # since players screen scroll is either a positive or negative number, we set it to zero to ensure the screen does not keep moving after a players death
@@ -890,7 +913,7 @@ while run:
                             world_data[x][y] = int(tile)
                 world = World()
                 player, health_bar = world.process_data(world_data)
-                
+
 
     # event handler
     for event in pygame.event.get():
