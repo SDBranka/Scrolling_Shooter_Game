@@ -23,3 +23,7 @@ Level created with:
 https://youtu.be/xYhniILN6Ls
 https://github.com/russs123/LevelEditor
 
+
+-water display issue
+    -may need to revisit episode 9 for tile image loading
+- box collision might be handled in the world process data function
