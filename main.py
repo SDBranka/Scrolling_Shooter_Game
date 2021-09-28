@@ -318,6 +318,7 @@ class Soldier(pygame.sprite.Sprite):
             bullet_group.add(bullet)
 			#reduce ammo
             self.ammo -= 1
+            shot_fx.play()
 
     def ai(self):
         if self.alive and player.alive:
@@ -682,6 +683,7 @@ class Grenade(pygame.sprite.Sprite):
         self.timer -= 1
         if self.timer <= 0:
             self.kill()
+            grenade_fx.play()
             x_pos_of_grenade = self.rect.x
             y_pos_of_grenade = self.rect.y
             scale_for_explosion = 0.5
