@@ -47,18 +47,16 @@ grenade_thrown = False
 pygame.mixer.music.load("audio/music2.mp3")
 pygame.mixer.music.set_volume(0.3)
 # loops set to -1 means music loops indefinitely
-music_loops = -1
-music_delay = 0.0
-music_fade = 5000
-pygame.mixer.music.play(music_loops, music_delay, music_fade)
+# music_loops = -1
+# music_delay = 0.0
+# music_fade = 5000
+# pygame.mixer.music.play(music_loops, music_delay, music_fade)
 jump_fx = pygame.mixer.Sound("audio/jump.wav")
-jump_fx.set_volume(0.5)
+jump_fx.set_volume(0.05)
 shot_fx = pygame.mixer.Sound("audio/shot.wav")
-shot_fx.set_volume(0.5)
+shot_fx.set_volume(0.05)
 grenade_fx = pygame.mixer.Sound("audio/grenade.wav")
-grenade_fx.set_volume(0.5)
-
-
+grenade_fx.set_volume(0.05)
 
 
 # Load images
@@ -101,7 +99,7 @@ RED = (255, 0, 0)
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 BLACK = (0, 0, 0)
-
+PINK = (235, 65, 54)
 
 
 # methods
@@ -764,6 +762,30 @@ class Explosion(pygame.sprite.Sprite):
         pass
 
 
+class ScreenFade():
+    def __init__(self, direction, color, speed):
+        self.direction = direction
+        self.color = color 
+        self.speed = speed
+        self.fade_counter = 0
+    
+    def fade(self):
+        # controls the speed at which the screen fades
+        self.fade_counter += self.speed
+
+        where_to_draw = screen
+        color_of_rect = self.color
+        start_pos_x = 0
+        start_pos_y = 0
+        rect_width = SCREEN_WIDTH
+        # rect starts at (0, 0) and increments down the screen
+        rect_move_timer = 0 + self.fade_counter
+        pygame.draw.rect(where_to_draw, color_of_rect, (start_pos_x, start_pos_y, rect_width, rect_move_timer))
+
+
+
+# create screen fades
+death_fade = ScreenFade(2, PINK, 4)
 
 # create buttons
 start_button = button.Button(SCREEN_WIDTH // 2 - 130, SCREEN_HEIGHT // 2 - 150, start_img, 1)
@@ -924,6 +946,7 @@ while run:
         else:
             # since players screen scroll is either a positive or negative number, we set it to zero to ensure the screen does not keep moving after a players death
             screen_scroll = 0
+            death_fade.fade()
             if restart_button.draw(screen):
                 bg_scroll = 0
                 world_data = reset_level()
