@@ -1,29 +1,11 @@
-YouTube Video:
-1 .https://youtu.be/US3HSusUBeI
-2. https://youtu.be/7WsE1Vy1Krg
-3. https://youtu.be/Su5OlLSpJDU
-4. https://youtu.be/fEQ8Cle23ko
-5. https://youtu.be/wqBCWdm9bGY
-6. https://youtu.be/cS9cagVNSGc
-7. https://youtu.be/IVer6kbsARY
-8. https://youtu.be/1WxQt4-ic3s
-9. https://youtu.be/5VSzZu5904c
-10. https://youtu.be/m7GnJo_oZUU
-11. https://youtu.be/JTM8_pcQOUU
-12. https://youtu.be/wWLDUb71mFo
-13. https://youtu.be/1hXAq0Re2xA
-
-Art Assets,
-Audio Assets,
-OP Scripts:
-https://github.com/russs123/Shooter
-
-
-Level created with:
-https://youtu.be/xYhniILN6Ls
-https://github.com/russs123/LevelEditor
-
-
 -water display issue
     -may need to revisit episode 9 for tile image loading
 - box collision might be handled in the world process data function
+
+
+
+
+
+
+
+
