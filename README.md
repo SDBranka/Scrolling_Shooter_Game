@@ -67,4 +67,4 @@ Download or clone this repository to your desktop. Run main.py in an appropriate
 - https://github.com/russs123/LevelEditor
 
 \
-[Back To The Top](#scrolling_shooter)
+[Back To The Top](#scrolling-shooter)
